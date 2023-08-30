@@ -13,65 +13,48 @@ app.get('/generate-pdf', async (req, res) => {
 
   const inputData = req.query;
 
-  const affectedData = JSON.parse(inputData.affected || "[]");
+  const risk_issues_by_customers_affected = JSON.parse(inputData.affected || "[]");
   const completedData = JSON.parse(inputData.completed || "[]");
 
+  console.log(Object.keys(risk_issues_by_customers_affected));
   const content = `
     <html>
       <body>
         <h1>First Chart</h1>
-        <canvas id="affectedChart" width="400" height="400"></canvas>
-        <h1>Second Chart</h1>
-        <canvas id="completedChart" width="400" height="400"></canvas>
+        <canvas id="riskIssuesByCustomersAffectedChart" width="400" height="400"></canvas>
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
           // Affected chart
-          var affectedCtx = document.getElementById('affectedChart').getContext('2d');
-          var affectedChart = new Chart(affectedCtx, {
-            type: 'bar',
-            data: {
-              labels: ${JSON.stringify(affectedData.labels || ['Ej1', 'Ej2'])},
-              datasets: [{
-                label: '# Affected',
-                data: ${JSON.stringify(affectedData.data || [12321, 123])},
-                backgroundColor: ${JSON.stringify(affectedData.backgroundColor || ["rgba(255, 99, 132, 0.2)"])},
-                borderColor: ${JSON.stringify(affectedData.borderColor || ["rgba(255, 99, 132, 1)"])},
-                borderWidth: 1
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  min: 0,
-                  max: 100 
-                }
+          var ctx1 = document.getElementById('riskIssuesByCustomersAffectedChart').getContext('2d');
+          riskIssuesByCustomersAffectedChart = new Chart(ctx1, {
+              type: 'horizontalBar',
+              data: {
+                  labels: ${Object.keys(risk_issues_by_customers_affected)},
+                  datasets: [{
+                      data: ${Object.values(risk_issues_by_customers_affected)},
+                      backgroundColor: "#F09724",
+                      borderWidth: 0
+                  }]
+              },
+              options: {
+                  scales: {
+                      yAxes: [{
+                          ticks: {
+                              beginAtZero: true
+                          },
+                      }],
+                      xAxes: [{
+                          ticks: {
+                              beginAtZero: true,
+                              stepSize: 1
+                          }
+                      }]
+                  },
+                  legend: {
+                      display: false
+                  }
               }
-            }
-          });
-        
-          // Completed chart
-          var completedCtx = document.getElementById('completedChart').getContext('2d');
-          var completedChart = new Chart(completedCtx, {
-            type: 'bar',
-            data: {
-              labels: ${JSON.stringify(completedData.labels || ['Ej1', 'Ej2'])},
-              datasets: [{
-                label: '# Completed',
-                data: ${JSON.stringify(completedData.data || [123, 200])},
-                backgroundColor: ${JSON.stringify(completedData.backgroundColor || ["rgba(75, 192, 192, 0.2)"])},
-                borderColor: ${JSON.stringify(completedData.borderColor || ["rgba(75, 192, 192, 1)"])},
-                borderWidth: 1
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  min: 0,
-                  max: 100
-                }
-              }
-            }
           });
         </script>
       </body>
